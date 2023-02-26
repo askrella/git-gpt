@@ -19,6 +19,12 @@ pip install -r requirements.txt
 python app.py
 ```
 
+# Disclaimer
+
+This is a proof of concept, and is not intended for production use. Please use at your own risk.
+
+It spends tokens for training & every question asked, so please be mindful using this.
+
 # Credits
 
 - [Llama-Index](https://github.com/jerryjliu/gpt_index)
