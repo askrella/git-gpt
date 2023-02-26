@@ -10,22 +10,23 @@ from git import Repo
 from llama_index import GPTSimpleVectorIndex, SimpleDirectoryReader
 
 # Contants
-temp_dir = temp.tempdir()
-store_dir = "store"
+STORE_DIR = "store"
+CLONE_NEW_REPO = "Clone new repo"
+LOAD_EXISTING_INDEX = "Load existing index"
 
 def ask_for_repo():
     repo_url = input("Enter repo url: ")
     return repo_url
 
 def clone_repo(repo_url):
-    repo_tmp_path = os.path.join(temp_dir, uuid.uuid4().hex)
+    repo_tmp_path = os.path.join(temp.tempdir, uuid.uuid4().hex)
     Repo.clone_from(repo_url, repo_tmp_path)
     return repo_tmp_path
 
 def get_repo_name(repo_url):
     return repo_url.split("/")[-1].split(".")[0]
 
-def clean_up(repo_tmp_path):
+def rm_recursively(repo_tmp_path):
     shutil.rmtree(repo_tmp_path)
 
 def tokens_to_cost(tokens):
@@ -33,13 +34,13 @@ def tokens_to_cost(tokens):
 
 def save_index(index, repo_url):
     # Create store/ dir if it doesn't exist
-    if not os.path.exists(store_dir):
-        os.makedirs(store_dir)
+    if not os.path.exists(STORE_DIR):
+        os.makedirs(STORE_DIR)
 
     # Save index
     date_str = datetime.datetime.now().strftime("%m-%H-%d-%m-%Y")
     name = get_repo_name(repo_url) + "-" + date_str + ".json"
-    index.save_to_disk(os.path.join(store_dir, name))
+    index.save_to_disk(os.path.join(STORE_DIR, name))
 
 def start_asking(index):
     while True:
@@ -62,8 +63,8 @@ def new_repo_flow():
     documents = SimpleDirectoryReader(input_dir=repo_tmp_path).load_data()
     index = GPTSimpleVectorIndex(documents)
 
-    # Clean up
-    clean_up(repo_tmp_path)
+    # Delete repo
+    rm_recursively(repo_tmp_path)
 
     # Save index
     save_index(index, repo_url)
@@ -73,19 +74,19 @@ def new_repo_flow():
 def existing_repo_flow():
     # Show user list of existing indexes
     print("Existing indexes:")
-    for file in os.listdir(store_dir):
+    for file in os.listdir(STORE_DIR):
         print(file)
 
     # Ask user to select index
     files_array = []
 
-    for file in os.listdir(store_dir):
+    for file in os.listdir(STORE_DIR):
         files_array.append(file)
 
     answer = inquirer.prompt(
         [inquirer.List("index", message="Select index", choices=files_array)]
     )
-    index_path = os.path.join(store_dir, answer["index"])
+    index_path = os.path.join(STORE_DIR, answer["index"])
 
     # Load index
     index = GPTSimpleVectorIndex.load_from_disk(index_path)
@@ -106,26 +107,27 @@ def main():
     
     openai.api_key = os.environ["OPENAI_API_KEY"]
 
-    # Ask if user wants to clone new repo or load existing index
+    # Print welcome message    
     print("")
     print("Welcome to Git GPT!")
     print("")
+
+    # Ask if user wants to clone new repo or load existing index
     answer = inquirer.prompt(
         [inquirer.List("type", message="Would you like to clone a new repo or load an existing index?", choices=[
-            "Clone new repo",
-            "Load existing index"
+            CLONE_NEW_REPO, LOAD_EXISTING_INDEX
         ])]
     )["type"]
 
     # Handle user input
-    if answer == "Clone new repo":
+    if answer == CLONE_NEW_REPO:
         # New repo, new index
         index = new_repo_flow()
-    elif answer == "Load existing index":
+    elif answer == LOAD_EXISTING_INDEX:
         # Existing index
         index = existing_repo_flow()
     else:
-        print("Invalid input")
+        print("Invalid input, exiting...")
         return
 
     # Validate index
