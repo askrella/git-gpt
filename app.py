@@ -1,11 +1,11 @@
 import os
-import temp
 import uuid
-import shutil
+import stat
 import datetime
 import openai
 import inquirer
 import dotenv
+import temp
 from git import Repo
 from llama_index import GPTSimpleVectorIndex, SimpleDirectoryReader
 
@@ -27,7 +27,14 @@ def get_repo_name(repo_url):
     return repo_url.split("/")[-1].split(".")[0]
 
 def rm_recursively(repo_tmp_path):
-    shutil.rmtree(repo_tmp_path)
+    for root, dirs, files in os.walk(repo_tmp_path, topdown=False):
+        for name in files:
+            filename = os.path.join(root, name)
+            os.chmod(filename, stat.S_IWUSR)
+            os.remove(filename)
+        for name in dirs:
+            os.rmdir(os.path.join(root, name))
+    os.rmdir(repo_tmp_path)      
 
 def tokens_to_cost(tokens):
     return (tokens / 1000) * 0.02
@@ -60,7 +67,7 @@ def new_repo_flow():
 
     # Load documents & create the index
     print("Creating index...")
-    documents = SimpleDirectoryReader(input_dir=repo_tmp_path).load_data()
+    documents = SimpleDirectoryReader(input_dir=repo_tmp_path, exclude_hidden=True).load_data()
     index = GPTSimpleVectorIndex(documents)
 
     # Delete repo
