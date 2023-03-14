@@ -19,7 +19,7 @@ def ask_for_repo():
     return repo_url
 
 def clone_repo(repo_url):
-    repo_tmp_path = os.path.join(temp.tempdir, uuid.uuid4().hex)
+    repo_tmp_path = os.path.join(temp.tempdir(), uuid.uuid4().hex)
     Repo.clone_from(repo_url, repo_tmp_path)
     return repo_tmp_path
 
