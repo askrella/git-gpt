@@ -13,6 +13,7 @@ from llama_index import GPTSimpleVectorIndex, SimpleDirectoryReader
 STORE_DIR = "store"
 CLONE_NEW_REPO = "Clone new repo"
 LOAD_EXISTING_INDEX = "Load existing index"
+SPECIFIC_FOLDER = "Specify a specific folder path"
 
 def ask_for_repo():
     repo_url = input("Enter repo url: ")
@@ -100,6 +101,22 @@ def existing_repo_flow():
 
     return index
 
+def folder_path_flow():
+    # Ask user to enter the folder path
+    folder_path = input("Enter the folder path of the repo: ")
+
+    # Check if the folder exists
+    if not os.path.exists(folder_path):
+        print("The specified folder does not exist. Exiting...")
+        return None
+
+    # Load documents & create the index
+    print("Creating index...")
+    documents = SimpleDirectoryReader(input_dir=folder_path, exclude_hidden=True).load_data()
+    index = GPTSimpleVectorIndex(documents)
+
+    return index
+
 def main():
     # Declare index
     index = None
@@ -122,7 +139,7 @@ def main():
     # Ask if user wants to clone new repo or load existing index
     answer = inquirer.prompt(
         [inquirer.List("type", message="Would you like to clone a new repo or load an existing index?", choices=[
-            CLONE_NEW_REPO, LOAD_EXISTING_INDEX
+            CLONE_NEW_REPO, LOAD_EXISTING_INDEX, SPECIFIC_FOLDER
         ])]
     )["type"]
 
@@ -133,6 +150,8 @@ def main():
     elif answer == LOAD_EXISTING_INDEX:
         # Existing index
         index = existing_repo_flow()
+    elif answer == SPECIFIC_FOLDER:
+        index = folder_path_flow()
     else:
         print("Invalid input, exiting...")
         return
