@@ -69,6 +69,7 @@ numpy==1.23.5
 olefile==0.46
 oletools==0.60.1
 onnxruntime==1.15.0
+openai==0.27.7
 openapi-schema-pydantic==1.2.4
 openpyxl==3.1.2
 overrides==7.3.1

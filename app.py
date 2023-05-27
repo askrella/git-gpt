@@ -6,7 +6,8 @@ import dotenv
 from langchain.llms import GPT4All
 from langchain.chains import RetrievalQA
 from langchain.vectorstores import Chroma
-from langchain.prompts import PromptTemplate
+from langchain.chat_models import ChatOpenAI
+from langchain.callbacks import get_openai_callback
 
 # Own modules
 from util import ask_for_repo, clone_repo, get_repo_name, rm_recursively
@@ -21,6 +22,10 @@ embeddings_model_name = os.environ.get("EMBEDDINGS_MODEL_NAME")
 model_path = os.environ.get('MODEL_PATH')
 model_n_ctx = os.environ.get('MODEL_N_CTX')
 target_source_chunks = int(os.environ.get('TARGET_SOURCE_CHUNKS', 4))
+openai_api_key = os.environ.get('OPENAI_API_KEY')
+
+def use_gpt():
+    return openai_api_key is not None and len(openai_api_key) > 0
 
 def start():
     # Create db_path if it doesn't exist
@@ -43,11 +48,18 @@ def start():
     rm_recursively(repo_path)
 
     # LLM
-    llm = GPT4All(
-        model=model_path,
-        n_ctx=model_n_ctx,
-        backend="gptj"
-    )
+    llm = None
+
+    if use_gpt():
+        print("Using OpenAI API")
+        llm = ChatOpenAI(openai_api_key=openai_api_key)
+    else:
+        print("Using GPT4ALL")
+        llm = GPT4All(
+            model=model_path,
+            n_ctx=model_n_ctx,
+            backend="gptj"
+        )
 
     # Retrieval QA
     qa = RetrievalQA.from_chain_type(
@@ -61,15 +73,23 @@ def start():
     print("")
     
     while True:
-        
         # Ask for user prompt
         query = input("Enter a question: ")
-
-        print("Processing question, this may take a while...")
         
         # Process query
-        response = qa(query)
-        
+        response = None
+        if use_gpt():
+            with get_openai_callback() as cb:
+                response = qa(query)
+                print("------")
+                print(f"Total Tokens: {cb.total_tokens}")
+                print(f"Prompt Tokens: {cb.prompt_tokens}")
+                print(f"Completion Tokens: {cb.completion_tokens}")
+                print(f"Total Cost (USD): ${cb.total_cost}")
+                print("------")
+        else:
+            response = qa(query)
+    
         # Print answer
         answer = response['result']
         print(f"Answer: {answer}")

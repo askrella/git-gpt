@@ -27,6 +27,11 @@ pip install -r requirements.txt
 python app.py
 ```
 
+# GPT
+You can also use OpenAI's GPT-3 API. Just set the `OPENAI_API_KEY` environment variable in the `.env` file.
+
+The default model is `gpt4all`. If the api key is set, it will use OpenAI GPT-3.
+
 # Credits
 
 Built with [LangChain](https://github.com/hwchase17/langchain), [GPT4All](https://github.com/nomic-ai/gpt4all), [LlamaCpp](https://github.com/ggerganov/llama.cpp), [Chroma](https://www.trychroma.com/) and [SentenceTransformers](https://www.sbert.net/).
