@@ -1,3 +1,7 @@
 store/
 .env
 env/
+models/
+db/
+__pycache__
+.venv

@@ -1,15 +1,23 @@
 # Git-GPT
 
-Ask questions against any git repository, and get a response from OpenAI GPT-3 model.
+Ask questions against any git repository.
 
-https://user-images.githubusercontent.com/6507938/221409032-e4dcc099-0321-41be-94f6-41eb03ad4b0b.mov
+Local. Private. No API key required.
 
 # Requirements
 
-- Python 3.6+
-- OpenAI API Key
+- Python 3.10+
+
+# Supported file types
+
+Check out `LOADER_MAPPING` in `ingest.py`.
 
 # Installation
+
+Download the gpt4all model and put it into the `models/` folder. Adjust the path in the .env file.
+
+- https://gpt4all.io/models/ggml-gpt4all-j-v1.3-groovy.bin (~3,7 GB)
+- https://gpt4all.io/models/ggml-gpt4all-l13b-snoozy.bin (~7,6 GB) (Doesnt work yet)
 
 ```bash
 # Installation
@@ -19,21 +27,6 @@ pip install -r requirements.txt
 python app.py
 ```
 
-# Environment Variables
-
-Create a `.env` file in the root directory, and add the following:
-
-```bash
-# OpenAI API Key, get one from https://openai.com/
-OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-```
-
-# Disclaimer
-
-This is a proof of concept, and is not intended for production use. Please use at your own risk.
-
-It spends tokens for training & every question asked, so please be mindful using this.
-
 # Credits
 
-- [Llama-Index](https://github.com/jerryjliu/gpt_index)
+Built with [LangChain](https://github.com/hwchase17/langchain), [GPT4All](https://github.com/nomic-ai/gpt4all), [LlamaCpp](https://github.com/ggerganov/llama.cpp), [Chroma](https://www.trychroma.com/) and [SentenceTransformers](https://www.sbert.net/).
