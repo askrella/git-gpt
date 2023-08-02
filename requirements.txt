@@ -18,7 +18,7 @@ colorclass==2.2.2
 coloredlogs==15.0.1
 commonmark==0.9.1
 compressed-rtf==1.0.6
-cryptography==40.0.2
+cryptography==41.0.3
 dataclasses-json==0.5.7
 Deprecated==1.2.14
 duckdb==0.8.0
