@@ -47,7 +47,7 @@ idna==3.4
 IMAPClient==2.3.1
 Jinja2==3.1.2
 joblib==1.2.0
-langchain==0.0.177
+langchain==0.0.236
 lark-parser==0.12.0
 llama-cpp-python==0.1.50
 lxml==4.9.2
